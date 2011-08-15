@@ -5,6 +5,11 @@ export PAGER=less
 
 ### Functions ###
 
+yamldump() {
+perl -MData::Dumper::Concise -MYAML -e \
+        'print qq("$_" =>\n), Dumper(YAML::LoadFile($_)) for @ARGV' $@
+}
+
 ### Aliases ###
 alias http="plackup -MPlack::App::Directory -e 'Plack::App::Directory->new({ root => \$ENV{PWD} })->to_app;'"
 alias RM='rm -rf'
