@@ -4,6 +4,7 @@ export LANG="en_US.UTF-8"
 export PERL_BADLANG="0"
 export EDITOR=/usr/bin/vim
 export PAGER=less
+export PATH=/usr/local/strategic/bin:$PATH
 
 PS1='\[\033[1;31m\]\u@\h\[\033[1;31m\]:\[\033[00m\]\w\[\033[38;5;55m\]$(__git_ps1 " [%s] ")\[\033[1;31m\]\$ \[\033[00m\] '
 
