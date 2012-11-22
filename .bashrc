@@ -2,12 +2,17 @@ source ~/.git-completion.sh
 
 export LANG="en_US.UTF-8"
 export PERL_BADLANG="0"
-export EDITOR=/usr/bin/vim
 export PAGER=less
-export PATH=/usr/local/strategic/bin:$PATH
+export EDITOR=/usr/bin/vim
+export PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/sbin:/usr/X11/bin:$PATH
 
+[[ -s $HOME/.tmuxinator/scripts/tmuxinator ]] && source $HOME/.tmuxinator/scripts/tmuxinator
+
+source ~/perl5/perlbrew/etc/bashrc
 PS1='\[\033[1;31m\]\u@\h\[\033[1;31m\]:\[\033[00m\]\w\[\033[38;5;55m\]$(__git_ps1 " [%s] ")\[\033[1;31m\]\$ \[\033[00m\] '
 
+tt() { perl -MTemplate -E "Template->new->process(\'$@', undef, \$out); say $out"; }    
+tmouse() { for i in resize-pane select-pane select-window; do tmux set mouse-$i $1; done; }
 perlat() { for i in $@; do PATHSEP=: prepend_envvar_at PERL5LIB $i; done; }
 
 prepend_envvar() {
@@ -103,21 +108,37 @@ perl -MData::Dumper::Concise -MYAML -e \
 
 ### functions ###
 yaml2csv() { perl -MYAML::XS -MText::CSV::Slurp -0e 'print Text::CSV::Slurp->new->create(input => Load(<>))'; }
+
+function yaml_to_meta() {
+    SD_WSDEFAULTS_PATH=core/conf/ SD_CONF_FILE=~/src/surveys/development/deecd/census-2012/default/conf/config.pl /usr/bin/env perl -Ibuild/lib -Icore/lib core/bin/ws-yml-map Meta < $1.yaml
+}
+
+function yaml_to_xlsx() {
+SD_WSDEFAULTS_PATH=core/conf/ SD_CONF_FILE=~/src/surveys/development/deecd/census-2012/default/conf/config.pl /usr/bin/env perl -Ibuild/lib -Icore/lib core/bin/ws-yml-map -m=$2 'Keep(session_key, selected_language_detail)' Flatten Empty Dump 'XLSX('$1.xlsx')' Null < $1.yaml
+}
+
+function yaml_to_keep() {
+SD_WSDEFAULTS_PATH=core/conf/ SD_CONF_FILE=~/src/surveys/development/deecd/census-2012/default/conf/config.pl /usr/bin/env perl -Ibuild/lib -Icore/lib core/bin/ws-yml-map 'Keep(session_key, selected_language_detail)'  < $1.yaml
+}
+
 function yaml_to_xls() {
-    SD_WSDEFAULTS_PATH=core/conf/ SD_CONF_FILE=~/src/surveys/production/deecd/kindergarten-census/child-information/conf/config.pl /usr/bin/perl -Ibuild/lib -Icore/lib core/bin/ws-yml-map Flatten Empty Dump 'XLS('$1.xls')' Null < $1.yaml
+    SD_WSDEFAULTS_PATH=core/conf/ SD_CONF_FILE=~/src/surveys/development/deecd/census-2012/default/conf/config.pl /usr/bin/env perl -Ibuild/lib -Icore/lib core/bin/ws-yml-map Flatten Empty Dump 'XLS('$1.xls')' Null < $1.yaml
 }
 
 function yaml_to_csv() {
-    SD_WSDEFAULTS_PATH=core/conf/ SD_CONF_FILE=~/src/surveys/production/deecd/kindergarten-census/child-information/conf/config.pl /usr/bin/perl -Ibuild/lib -Icore/lib core/bin/ws-yml-map Flatten Empty Dump 'CSV('$1.csv')' Null < $1.yaml
+    SD_WSDEFAULTS_PATH=core/conf/ SD_CONF_FILE=~/src/surveys/production/deecd/kindergarten-census-2012/part-b/conf/config.pl /usr/bin/env perl -Ibuild/lib -Icore/lib core/bin/ws-yml-map Empty Dump 'CSV('$1.csv')' Null < $1.yaml
 }
 
-
+leak() { perl -ple 'print STDERR'; }
 
 ### Aliases ###
 alias http="plackup -MPlack::App::Directory -e 'Plack::App::Directory->new({ root => \$ENV{PWD} })->to_app;'"
 alias RM='rm -rf'
 alias vi='vim'
 
+
+alias tmux_websurvey='tmuxinator start websurvey-setup'
+alias ssh='ssh -AY'
 alias http="plackup -MPlack::App::Directory -e 'Plack::App::Directory->new({ root => \$ENV{PWD} })->to_app;'"
 alias footytips='ssh ashpe@173.231.53.150'
 alias homepc='ssh ashpe@203.132.88.127'
@@ -175,4 +196,7 @@ alias gls='git ls-files --exclude-standard'
 alias gcp='git cherry-pick -x'
 alias grh='git reset --hard HEAD'
 alias gundo='git reset HEAD^'
+alias gsr='git svn rebase'
+alias gsdc='git svn dcommit'
+
 
